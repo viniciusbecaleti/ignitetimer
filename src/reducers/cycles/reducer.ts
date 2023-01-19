@@ -1,0 +1,52 @@
+import { ActionsProp, ActionTypes } from './actions'
+
+export interface Cycle {
+  id: string
+  task: string
+  minutesAmount: number
+  startedAt: Date
+  interruptAt?: Date
+  finishedAt?: Date
+}
+
+interface CyclesState {
+  cycles: Cycle[]
+  activeCycleId: string | null
+}
+
+export function cyclesReducer(state: CyclesState, action: ActionsProp) {
+  switch (action.type) {
+    case ActionTypes.ADD_NEW_CYCLE:
+      return {
+        ...state,
+        cycles: [action.payload.newCycle, ...state.cycles],
+        activeCycleId: action.payload.newCycle.id,
+      }
+    case ActionTypes.INTERRUPT_CURRENT_CYCLE:
+      return {
+        ...state,
+        cycles: state.cycles.map((cycle) => {
+          if (cycle.id === state.activeCycleId) {
+            return { ...cycle, interruptAt: new Date() }
+          }
+
+          return cycle
+        }),
+        activeCycleId: null,
+      }
+    case ActionTypes.MARK_CURRENT_CYCLE_AS_FINISHED:
+      return {
+        ...state,
+        cycles: state.cycles.map((cycle) => {
+          if (cycle.id === state.activeCycleId) {
+            return { ...cycle, finishedAt: new Date() }
+          }
+
+          return cycle
+        }),
+        activeCycleId: null,
+      }
+    default:
+      return state
+  }
+}
